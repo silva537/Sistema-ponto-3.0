@@ -3,7 +3,7 @@
 // ==========================================
 
 const VERSAO_ATUAL = "3.0"; // Mude sempre que lançar uma grande atualização física
-const URL_VERIFICACAO_VERSAO = "https://raw.githubusercontent.com/silva537/Sistema-ponto-3.0/principais/versao.json";
+const URL_VERIFICACAO_VERSAO = "https://raw.githubusercontent.com/silva537/Sistema-ponto-3.0/main/versao.json";
 
 document.addEventListener('DOMContentLoaded', () => {
     verificarAtualizacoesDisponiveis();
@@ -82,4 +82,4 @@ function aplicarAtualizacaoApp() {
 function fecharAvisoAtualizacao() {
     const banner = document.getElementById('bannerAtualizacaoGlobal');
     if (banner) banner.remove();
-            }
+}

@@ -72,6 +72,8 @@
             </div>
             <div class="badge-pro">Pro 3.0</div>
         </header>
+
+        <!-- BLOCO 1: NOVO REGISTRO -->
         <main class="main-container">
             <section class="card-panel">
                 <div class="panel-header-row">
@@ -128,6 +130,8 @@
 
                 <button class="btn-primary-action" id="btnSalvarPlantao">Salvar Plantão</button>
             </section>
+
+            <!-- BLOCO 2: VISÃO GERAL E MÉTRICAS -->
             <section class="card-panel">
                 <div class="panel-header-row">
                     <h3>VISÃO GERAL</h3>
@@ -187,9 +191,10 @@
                 <button class="btn-success-action" id="btnFecharFolha">✔ Recebi / Fechar Folha Atual</button>
             </section>
 
+            <!-- BLOCO 3: EXTRATOS, FERRAMENTAS E FOLHAS ARQUIVADAS -->
             <section class="card-panel">
                 <div class="panel-header-row">
-                    <h3>EXTRATOS E TOTAIS</h3>
+                    <h3>EXTRATOS E ARQUIVOS</h3>
                 </div>
 
                 <div class="table-container">
@@ -215,10 +220,10 @@
                     <span class="tools-title">Ferramentas</span>
                     <button class="btn-secondary-action" id="btnExportarCsv">📊 Exportar Dados para Excel (CSV)</button>
                 </div>
-            </section>
 
-            <section class="card-panel">
-                <div class="panel-header-row">
+                <hr class="dev-divider" style="margin: 8px 0;">
+
+                <div class="panel-header-row" style="margin-top: 4px;">
                     <h3>FOLHAS ANTERIORES ARQUIVADAS</h3>
                 </div>
                 <div id="listaFolhasArquivadas">
@@ -226,11 +231,13 @@
                 </div>
             </section>
         </main>
+
         <footer class="app-footer">
             Desenvolvido por Vitor
         </footer>
     </div>
-     <!-- Modal de Atualização Obrigatório -->
+
+    <!-- Modal de Atualização Obrigatório -->
     <div id="updateModal" class="update-modal-overlay">
         <div class="update-modal-card">
             <div class="update-header">🚀 Nova Versão Disponível (<span id="txtVersaoNova"></span>)</div>
@@ -246,7 +253,7 @@
         </div>
     </div>
 
-    <!-- Scripts Carregados no Fim do Corpo para Garantir que os Botões Funcionem -->
+    <!-- Scripts -->
     <script src="standby.js"></script>
     <script src="updater.js"></script>
     <script src="script.js"></script>

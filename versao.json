@@ -1,0 +1,9 @@
+{
+  "versao": "2.9",
+  "novidades": [
+    "Nova gaveta lateral com painel de senha ADM seguro",
+    "Melhorias no layout responsivo para APKs",
+    "Correção de bugs gerais e performance"
+  ],
+  "linkAtualizacao": "#"
+}

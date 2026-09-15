@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Plantões • Sistema Ponto Vigias</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="devSidebar" class="dev-sidebar">
+        <div class="dev-header">
+            <h3>Painel ADM / Desenvolvedor</h3>
+            <button class="btn-close-dev" onclick="fecharMenuDev()">✕</button>
+        </div>
+
+        <div id="painelLoginAdm" class="login-panel-box">
+            <h4>🔐 Acesso Restrito</h4>
+            <span style="font-size: 10px; color: var(--text-muted);">Digite a senha de administrador para gerenciar o sistema.</span>
+            <div class="form-group" style="margin-top: 6px;">
+                <input type="password" id="inputSenhaAdm" class="form-control" placeholder="Senha ADM...">
+            </div>
+            <button class="btn-primary-action" onclick="tentarLogarAdm()" style="margin-top: 6px;">Entrar no Painel</button>
+        </div>
+
+        <div id="conteudoProtegidoAdm" class="dev-body-content" style="display: none;">
+            <div class="dev-info-block">
+                <span class="dev-label">Versão do Sistema Local</span>
+                <strong style="color: var(--accent);">v2.9</strong>
+            </div>
+            <div class="dev-info-block">
+                <span class="dev-label">Status de Conexão</span>
+                <strong style="color: var(--success);">🟢 Sincronizado</strong>
+            </div>
+
+            <hr class="dev-divider">
+
+            <span class="dev-label" style="margin-bottom: 2px; display:block;">Controle de Operação</span>
+            <button class="btn-dev-action" onclick="alternarModoManutencao()">🛠️ Ativar / Desativar Manutenção</button>
+
+            <hr class="dev-divider">
+
+            <span class="dev-label" style="margin-bottom: 2px; display:block;">Gestão de Dados & JSON</span>
+            <button class="btn-dev-action" onclick="exportarBackupJSON()">📥 Exportar Backup JSON</button>
+            <button class="btn-dev-action" onclick="importarBackupJSON()">📤 Restaurar JSON</button>
+            <input type="file" id="fileJsonInput" style="display: none;" onchange="processarImportacaoJSON(event)">
+
+            <hr class="dev-divider">
+
+            <button class="btn-dev-action" onclick="logoutAdm()" style="color: var(--accent);">🔒 Bloquear / Sair do ADM</button>
+            <button class="btn-dev-danger" onclick="limparBancoDadosLocal()">⚠️ Resetar Dados Locais</button>
+        </div>
+    </div>
+    
+    <div id="devOverlay" class="dev-overlay" onclick="fecharMenuDev()"></div>
+    
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="brand-area">
+                <span class="menu-icon" onclick="tentarAbrirMenuDev()">☰</span>
+                <span class="brand-title">PONTOVIGIA • RH ID</span>
+            </div>
+            <div class="badge-pro">Pro 2.9</div>
+        </header>
+        <main class="main-container">
+            <section class="card-panel">
+                <div class="panel-header-row">
+                    <h3>NOVO REGISTRO</h3>
+                    <span class="auto-save-tag">🟢 AUTO-SAVE ATIVO</span>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="inputData" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Turno</label>
+                        <select id="inputTurno" class="form-control">
+                            <option value="Manhã">Manhã (06:00 - 18:00)</option>
+                            <option value="Noturno">Noturno (18:00 - 06:00)</option>
+                            <option value="Personalizado">Personalizado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Início</label>
+                        <input type="time" id="inputInicio" class="form-control" value="06:00">
+                    </div>
+                    <div class="form-group">
+                        <label>Fim</label>
+                        <input type="time" id="inputFim" class="form-control" value="18:00">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Sono Prévio (h)</label>
+                        <input type="number" id="inputSono" class="form-control" value="0" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="inputValor" class="form-control" value="100.00">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Cobriu folga de (Opcional)</label>
+                    <input type="text" id="inputCobertura" class="form-control" placeholder="Nome do colega">
+                </div>
+
+                <div class="form-group">
+                    <label>Observação</label>
+                    <input type="text" id="inputObs" class="form-control" placeholder="Detalhes ou anotações...">
+                </div>
+
+                <button class="btn-primary-action" id="btnSalvarPlantao">Salvar Plantão</button>
+            </section>
+
+            <section class="card-panel">
+                <div class="panel-header-row">
+                    <h3>VISÃO GERAL</h3>
+                </div>
+
+                <div class="meta-box">
+                    <div class="meta-info">
+                        <span>Meta: <strong id="metaValorTexto">R$ 1000.00</strong></span>
+                        <span id="metaPorcentagem">100%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="progressBarFill" class="progress-bar-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="meta-footer">
+                        <button class="btn-text-link" id="btnAjustarMeta">⚙️ Ajustar Meta</button>
+                    </div>
+                </div>
+
+                <div class="preview-cards-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="preview-card-item" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;">
+                        <div class="preview-header-row" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="preview-title" style="font-size: 10px; color: var(--text-muted);">Previsão Cash</span>
+                            <button class="preview-badge-btn" onclick="configurarPrevisaoCash()" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); font-size: 9px; padding: 2px 6px; border-radius: 6px; cursor: pointer;">📅 Dia</button>
+                        </div>
+                        <span id="txtPrevisaoCash" style="font-size: 13px; font-weight: 700; color: #f59e0b;">Falta 1 dia</span>
+                    </div>
+                    <div class="preview-card-item" style="background: var(--bg-base); border: 1px solid var(--danger); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;">
+                        <div class="preview-header-row" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="preview-title" style="font-size: 10px; color: var(--text-muted);">Fechamento RH</span>
+                            <button class="preview-badge-btn" onclick="configurarLimiteRh()" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); font-size: 9px; padding: 2px 6px; border-radius: 6px; cursor: pointer;">⚙️ Limite</button>
+                        </div>
+                        <span id="txtFechamentoRh" style="font-size: 13px; font-weight: 700; color: var(--danger);">Falta 1 dia!</span>
+                    </div>
+                </div>
+
+                <div class="metrics-grid-2">
+                    <div class="metric-card">
+                        <span class="metric-label">Total Plantões</span>
+                        <strong id="totalPlantoesQtd" class="metric-val-white">0</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Próprios / Coberturas</span>
+                        <strong id="propriosCoberturasQtd" class="metric-val-white">0 / 0</strong>
+                    </div>
+                </div>
+                <div class="metrics-grid-2">
+                    <div class="metric-card">
+                        <span class="metric-label">Média por Plantão</span>
+                        <strong id="mediaPorPlantao" class="metric-val-cyan">R$ 100.00</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Média de Sono</span>
+                        <strong id="mediaSonoVal" class="metric-val-white">0h</strong>
+                    </div>
+                </div>
+
+                <button class="btn-success-action" id="btnFecharFolha">✔ Recebi / Fechar Folha Atual</button>
+            </section>
+
+            <section class="card-panel">
+                <div class="panel-header-row">
+                    <h3>EXTRATOS E TOTAIS</h3>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Detalhes</th>
+                                <th>Turno / Horário</th>
+                                <th>Valor</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaHistoricoBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="total-filtrado-bar">
+                    <span>Total Filtrado:</span>
+                    <strong id="totalFiltradoValor">R$ 0.00</strong>
+                </div>
+
+                <div class="tools-box">
+                    <span class="tools-title">Ferramentas</span>
+                    <button class="btn-secondary-action" id="btnExportarCsv">📊 Exportar Dados para Excel (CSV)</button>
+                </div>
+            </section>
+
+            <section class="card-panel">
+                <div class="panel-header-row">
+                    <h3>FOLHAS ANTERIORES ARQUIVADAS</h3>
+                </div>
+                <div id="listaFolhasArquivadas">
+                    <p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 10px;">Nenhuma folha arquivada ainda.</p>
+                </div>
+            </section>
+        </main>
+        <footer class="app-footer">
+            Desenvolvido por Vitor
+        </footer>
+    </div>
+
+    <div id="updateModal" class="update-modal-overlay">
+        <div class="update-modal-card">
+            <div class="update-header">🚀 Nova versão disponível!</div>
+            <div class="update-body">
+                <p><strong>Versão atual:</strong> <span id="txtVersaoAtual">2.9</span></p>
+                <p><strong>Nova versão:</strong> <span id="txtVersaoNova">3.0</span></p>
+                <div class="update-changelog-title">🎉 Novidades desta versão:</div>
+                <ul id="listaNovidades" class="update-changelog-list"></ul>
+            </div>
+            <div class="update-footer">
+                <button class="btn-update-now" onclick="executarAtualizacao()">📥 BAIXAR AGORA</button>
+                <button class="btn-update-later" onclick="fecharModalAtualizacao()">Depois</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts sem numeração, referenciando os nomes limpos -->
+    <script src="script.js"></script>
+    <script src="standby.js"></script>
+    <script src="updater.js"></script>
+</body>
+</html>

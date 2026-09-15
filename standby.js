@@ -11,7 +11,6 @@ function tentarAbrirMenuDev() {
     const overlay = document.getElementById('devOverlay');
     const overlayManutencao = document.getElementById('overlayManutencaoGlobal');
 
-    // Se estiver em manutenção, esconde temporariamente o aviso para dar lugar ao painel ADM
     if (overlayManutencao) {
         overlayManutencao.style.display = 'none';
     }
@@ -29,7 +28,6 @@ function fecharMenuDev() {
     if (sidebar) sidebar.classList.remove('open');
     if (overlay) overlay.classList.remove('open');
 
-    // Se o sistema estiver em manutenção e o adm fechar o menu sem desativar, volta a tela de manutenção
     if (emManutencao && overlayManutencao) {
         overlayManutencao.style.display = 'flex';
     }
@@ -37,7 +35,6 @@ function fecharMenuDev() {
 
 function tentarLogarAdm() {
     const senhaInput = document.getElementById('inputSenhaAdm').value;
-    // Senhas aceitas para gerenciar o painel
     if (senhaInput === 'admin123' || senhaInput === 'vitor2026') {
         document.getElementById('painelLoginAdm').style.display = 'none';
         document.getElementById('conteudoProtegidoAdm').style.display = 'block';
@@ -98,6 +95,18 @@ function aplicarTelaManutencao(ativar) {
     }
 }
 
+function dispararTesteAtualizacao() {
+    const versaoTesteFicticia = "3.2-beta";
+    const mensagemTeste = "Nova versão de teste liberada com melhorias no fluxo administrativo e estabilidade do Auto-Save.";
+    
+    if (typeof exibirModalAtualizacao === 'function') {
+        exibirModalAtualizacao(versaoTesteFicticia, mensagemTeste);
+        fecharMenuDev();
+    } else {
+        alert('Módulo de atualização (updater.js) não encontrado.');
+    }
+}
+
 function exportarBackupJSON() {
     const dadosGerais = {
         plantoes: JSON.parse(localStorage.getItem('pontovigia_plantoes')) || [],
@@ -149,3 +158,54 @@ function limparBancoDadosLocal() {
         location.reload();
     }
 }
+
+// ==========================================
+// PONTOVIGIA • CUSTOMIZAÇÃO VISUAL (RGB / FUNDO)
+// ==========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    carregarFundoPersonalizadoSalvo();
+});
+
+function salvarFundoPersonalizado() {
+    const urlInput = document.getElementById('inputUrlFundoDev').value.trim();
+    if (!urlInput) {
+        alert('Por favor, insira o link de uma imagem ou GIF válido.');
+        return;
+    }
+
+    localStorage.setItem('pontovigia_custom_bg', urlInput);
+    aplicarFundoNoCabecalho(urlInput);
+    document.getElementById('inputUrlFundoDev').value = '';
+    alert('🎨 Fundo aplicado com sucesso no cabeçalho!');
+    fecharMenuDev();
+}
+
+function carregarFundoPersonalizadoSalvo() {
+    const bgSalvo = localStorage.getItem('pontovigia_custom_bg');
+    if (bgSalvo) {
+        aplicarFundoNoCabecalho(bgSalvo);
+    }
+}
+
+function aplicarFundoNoCabecalho(url) {
+    const header = document.getElementById('appHeaderCustom');
+    if (header) {
+        header.style.backgroundImage = `linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), url('${url}')`;
+    }
+}
+
+function removerFundoPersonalizado() {
+    localStorage.removeItem('pontovigia_custom_bg');
+    const header = document.getElementById('appHeaderCustom');
+    if (header) {
+        header.style.backgroundImage = 'none';
+    }
+    alert('🗑️ Fundo personalizado removido. O padrão foi restaurado.');
+    fecharMenuDev();
+}
+
+// Injeção automática dos novos módulos ADM sem mexer no HTML
+const scriptModulosAdm = document.createElement('script');
+scriptModulosAdm.src = 'dev_modules.js';
+document.head.appendChild(scriptModulosAdm);

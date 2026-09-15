@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Plantões • Sistema Ponto Vigias</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <div id="devSidebar" class="dev-sidebar">
@@ -25,7 +26,7 @@
         <div id="conteudoProtegidoAdm" class="dev-body-content" style="display: none;">
             <div class="dev-info-block">
                 <span class="dev-label">Versão do Sistema Local</span>
-                <strong style="color: var(--accent);">v2.9</strong>
+                <strong style="color: var(--accent);">v3.0</strong>
             </div>
             <div class="dev-info-block">
                 <span class="dev-label">Status de Conexão</span>
@@ -36,6 +37,17 @@
 
             <span class="dev-label" style="margin-bottom: 2px; display:block;">Controle de Operação</span>
             <button class="btn-dev-action" onclick="alternarModoManutencao()">🛠️ Ativar / Desativar Manutenção</button>
+            <button class="btn-dev-action" onclick="forcarChecagemAtualizacao()">🔄 Forçar Checagem de Update</button>
+            <button class="btn-dev-action" onclick="dispararTesteAtualizacao()">📢 Testar Notificação de Update</button>
+
+            <hr class="dev-divider">
+
+            <span class="dev-label" style="margin-bottom: 2px; display:block;">Customização Visual (RGB / Fundo)</span>
+            <div class="form-group" style="gap: 2px;">
+                <input type="text" id="inputUrlFundoDev" class="form-control" placeholder="Cole o link da Imagem ou GIF..." style="font-size: 11px; padding: 6px;">
+            </div>
+            <button class="btn-dev-action" onclick="salvarFundoPersonalizado()" style="background: var(--accent); color: #fff; text-align: center; font-weight: 700; margin-top: 4px;">🎨 Aplicar Fundo no Cabeçalho</button>
+            <button class="btn-dev-action" onclick="removerFundoPersonalizado()" style="margin-top: 4px;">🗑️ Remover Fundo / Resetar</button>
 
             <hr class="dev-divider">
 
@@ -52,14 +64,13 @@
     </div>
     
     <div id="devOverlay" class="dev-overlay" onclick="fecharMenuDev()"></div>
-    
     <div class="app-shell">
-        <header class="app-header">
+        <header class="app-header" id="appHeaderCustom">
             <div class="brand-area">
                 <span class="menu-icon" onclick="tentarAbrirMenuDev()">☰</span>
                 <span class="brand-title">PONTOVIGIA • RH ID</span>
             </div>
-            <div class="badge-pro">Pro 2.9</div>
+            <div class="badge-pro">Pro 3.0</div>
         </header>
         <main class="main-container">
             <section class="card-panel">
@@ -117,7 +128,6 @@
 
                 <button class="btn-primary-action" id="btnSalvarPlantao">Salvar Plantão</button>
             </section>
-
             <section class="card-panel">
                 <div class="panel-header-row">
                     <h3>VISÃO GERAL</h3>
@@ -220,26 +230,25 @@
             Desenvolvido por Vitor
         </footer>
     </div>
-
+     <!-- Modal de Atualização Obrigatório -->
     <div id="updateModal" class="update-modal-overlay">
         <div class="update-modal-card">
-            <div class="update-header">🚀 Nova versão disponível!</div>
+            <div class="update-header">🚀 Nova Versão Disponível (<span id="txtVersaoNova"></span>)</div>
             <div class="update-body">
-                <p><strong>Versão atual:</strong> <span id="txtVersaoAtual">2.9</span></p>
-                <p><strong>Nova versão:</strong> <span id="txtVersaoNova">3.0</span></p>
-                <div class="update-changelog-title">🎉 Novidades desta versão:</div>
+                <span>Versão Atual: <strong id="txtVersaoAtual"></strong></span>
+                <span class="update-changelog-title">Novidades:</span>
                 <ul id="listaNovidades" class="update-changelog-list"></ul>
             </div>
             <div class="update-footer">
-                <button class="btn-update-now" onclick="executarAtualizacao()">📥 BAIXAR AGORA</button>
-                <button class="btn-update-later" onclick="fecharModalAtualizacao()">Depois</button>
+                <button class="btn-update-now" onclick="executarAtualizacao()">Atualizar Agora</button>
+                <button class="btn-update-later" onclick="fecharModalAtualizacao()">Mais Tarde</button>
             </div>
         </div>
     </div>
 
-    <!-- Scripts sem numeração, referenciando os nomes limpos -->
-    <script src="script.js"></script>
+    <!-- Scripts Carregados no Fim do Corpo para Garantir que os Botões Funcionem -->
     <script src="standby.js"></script>
     <script src="updater.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

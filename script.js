@@ -1,5 +1,5 @@
 // ==========================================
-// PONTOVIGIA • SCRIPT PRINCIPAL (v2.9 / v6)
+// PONTOVIGIA • SCRIPT PRINCIPAL (v3.0)
 // ==========================================
 
 let plantoes = JSON.parse(localStorage.getItem('pontovigia_plantoes')) || [];
@@ -137,7 +137,6 @@ function atualizarTabelaHistorico() {
         return;
     }
 
-    // Ordenar do mais recente para o mais antigo
     const plantoesOrdenados = [...plantoes].sort((a, b) => new Date(b.data) - new Date(a.data));
 
     plantoesOrdenados.forEach(p => {
@@ -211,14 +210,12 @@ function atualizarPrevisoesPaineis() {
     const txtRh = document.getElementById('txtFechamentoRh');
 
     const hoje = new Date();
-    // Zerar horas para comparar apenas os dias perfeitamente
     hoje.setHours(0, 0, 0, 0);
 
     const anoAtual = hoje.getFullYear();
     const mesAtual = hoje.getMonth();
     const diaAtual = hoje.getDate();
 
-    // 1. Cálculo para o Cash (Previsão de Pagamento)
     let dataCash = new Date(anoAtual, mesAtual, diaPrevisaoCash);
     if (diaAtual > diaPrevisaoCash) {
         dataCash = new Date(anoAtual, mesAtual + 1, diaPrevisaoCash);
@@ -238,7 +235,6 @@ function atualizarPrevisoesPaineis() {
         }
     }
 
-    // 2. Cálculo para o Fechamento RH
     let dataRh = new Date(anoAtual, mesAtual, limiteFechamentoRh);
     if (diaAtual > limiteFechamentoRh) {
         dataRh = new Date(anoAtual, mesAtual + 1, limiteFechamentoRh);

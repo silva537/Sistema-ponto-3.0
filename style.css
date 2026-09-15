@@ -25,6 +25,13 @@ body {
     min-height: 100vh;
 }
 
+/* Novo Sistema Visual: Pulso Tecnológico Cyber / Escaneamento Limpo */
+@keyframes techPulseGlow {
+    0% { border-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.2); }
+    50% { border-color: #60a5fa; box-shadow: 0 0 16px rgba(96, 165, 250, 0.4); }
+    100% { border-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.2); }
+}
+
 .app-shell {
     width: 100%;
     max-width: 480px;
@@ -32,8 +39,9 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    border-left: 1px solid var(--border);
-    border-right: 1px solid var(--border);
+    border-left: 2px solid #3b82f6;
+    border-right: 2px solid #3b82f6;
+    animation: techPulseGlow 4s infinite ease-in-out;
 }
 
 .app-header {
@@ -42,7 +50,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid #3b82f6;
+    animation: techPulseGlow 4s infinite ease-in-out;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.3s ease;
 }
 
 .brand-area {
@@ -306,7 +318,7 @@ body {
     color: var(--text-muted);
 }
 
-/* Sidebar ADM */
+/* Sidebar ADM com Pulso Tecnológico */
 .dev-sidebar {
     position: fixed;
     top: 0;
@@ -314,7 +326,8 @@ body {
     width: 280px;
     height: 100%;
     background: var(--bg-card);
-    border-right: 1px solid var(--border);
+    border-right: 2px solid #3b82f6;
+    animation: techPulseGlow 4s infinite ease-in-out;
     z-index: 1000;
     transition: left 0.3s ease;
     display: flex;
@@ -419,7 +432,8 @@ body {
 
 .update-modal-card {
     background: var(--bg-card);
-    border: 1px solid var(--border);
+    border: 2px solid #3b82f6;
+    animation: techPulseGlow 4s infinite ease-in-out;
     border-radius: 12px;
     width: 90%;
     max-width: 320px;
@@ -432,6 +446,24 @@ body {
 .update-header {
     font-size: 14px;
     font-weight: 700;
+}
+
+.update-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.update-changelog-title {
+    font-weight: bold;
+    color: var(--text-main);
+    margin-top: 4px;
+}
+
+.update-changelog-list {
+    padding-left: 16px;
 }
 
 .update-footer {

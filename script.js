@@ -3,13 +3,20 @@ let folhasArquivadas = JSON.parse(localStorage.getItem('pontovigia_folhas')) || 
 let logsPlantao = JSON.parse(localStorage.getItem('pontovigia_logs')) || [];
 let metaMensal = parseFloat(localStorage.getItem('pontovigia_meta')) || 1000.00;
 
-// Configuração do Supabase (Carregada do LocalStorage ou vazia para configurar no ADM)
-let supabaseUrl = localStorage.getItem('https://sgammtgdylghpufkidfi.supabase.co') || '';
-let supabaseKey = localStorage.getItem('sb_publishable_YRz40KFT9DTNqBQooNRGPw_kpU2PhYi') || '';
+// Configuração do Supabase (Embutida e com fallback para o localStorage)
+const SUPABASE_DEFAULT_URL = "https://sgammtgdylghpufkidfi.supabase.co";
+const SUPABASE_DEFAULT_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnYW1tdGdkeWxnaHB1ZmtpZGZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3111111111...";
+
+let supabaseUrl = localStorage.getItem('pontovigia_sb_url') || SUPABASE_DEFAULT_URL;
+let supabaseKey = localStorage.getItem('pontovigia_sb_key') || SUPABASE_DEFAULT_KEY;
 let supabaseClient = null;
 
 if (supabaseUrl && supabaseKey && window.supabase) {
-    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+    try {
+        supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+    } catch (e) {
+        console.error("Erro ao inicializar Supabase:", e);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,12 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
     atualizarUIPlantaoAtivo();
     renderizarTabelaLogs();
     
-    // Inicializa carregamento do mural na nuvem se configurado
     carregarAnunciosTrocaCloud();
     
-    // Preenche inputs do adm se já salvos
-    if (document.getElementById('inputSupabaseUrl')) document.getElementById('inputSupabaseUrl').value = supabaseUrl;
-    if (document.getElementById('inputSupabaseKey')) document.getElementById('inputSupabaseKey').value = supabaseKey;
+    if (document.getElementById('inputSupabaseUrl')) document.getElementById('inputSupabaseUrl').value = localStorage.getItem('pontovigia_sb_url') || SUPABASE_DEFAULT_URL;
+    if (document.getElementById('inputSupabaseKey')) document.getElementById('inputSupabaseKey').value = localStorage.getItem('pontovigia_sb_key') || '';
+    
+    const inputWebhook = document.getElementById('inputWebhookUrl');
+    if (inputWebhook) {
+        inputWebhook.value = localStorage.getItem('nexus_webhook_url') || '';
+    }
 });
 
 function salvarCredenciaisSupabase() {
@@ -38,6 +48,44 @@ function salvarCredenciaisSupabase() {
     localStorage.setItem('pontovigia_sb_key', key);
     alert('Credenciais salvas com sucesso! Recarregando aplicação...');
     location.reload();
+}
+
+function salvarWebhookUrl() {
+    const inputWebhook = document.getElementById('inputWebhookUrl');
+    if (!inputWebhook) return;
+    
+    const url = inputWebhook.value.trim();
+    localStorage.setItem('nexus_webhook_url', url);
+    alert("✅ URL do Webhook salva com sucesso!");
+}
+
+async function testarEnvioWebhook() {
+    const url = localStorage.getItem('nexus_webhook_url');
+    if (!url) {
+        alert("⚠️ Nenhuma URL de Webhook configurada. Cole o link e salve primeiro.");
+        return;
+    }
+
+    const payload = {
+        content: "🚨 **PONTOVIGIA • Teste de Webhook**\nO sistema de alertas foi conectado com sucesso direto pelo Painel ADM!"
+    };
+
+    try {
+        const resposta = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (resposta.ok || resposta.status === 204) {
+            alert("🚀 Mensagem de teste disparada com sucesso para o webhook!");
+        } else {
+            alert("⚠️ O webhook respondeu com erro. Verifique se a URL está correta.");
+        }
+    } catch (erro) {
+        console.error("Erro ao enviar webhook:", erro);
+        alert("❌ Falha de rede ao tentar conectar com o Webhook.");
+    }
 }
 
 function inicializarDataAtual() {
@@ -195,10 +243,6 @@ function exportarParaCsv() {
     link.click();
     document.body.removeChild(link);
 }
-
-// ==========================================
-// MÓDULO DE PLANTÃO ATIVO, LOGS E REFEIÇÕES
-// ==========================================
 let plantaoAtivoTimer = null;
 
 function realizarCheckIn() {
@@ -348,9 +392,6 @@ function excluirLog(id) {
     }
 }
 
-// ==========================================
-// MURAL DE TROCAS & CARONA SOLIDÁRIA (SUPABASE)
-// ==========================================
 function abrirModalAnunciarTroca() {
     const modal = document.getElementById('modalTrocaPlantao');
     if (modal) modal.style.display = 'flex';

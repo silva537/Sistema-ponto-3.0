@@ -3,9 +3,9 @@ let folhasArquivadas = JSON.parse(localStorage.getItem('pontovigia_folhas')) || 
 let logsPlantao = JSON.parse(localStorage.getItem('pontovigia_logs')) || [];
 let metaMensal = parseFloat(localStorage.getItem('pontovigia_meta')) || 1000.00;
 
-// Configuração do Supabase (Embutida e com fallback para o localStorage)
+// Configuração do Supabase (insira sua chave anon/public JWT longa entre as aspas abaixo)
 const SUPABASE_DEFAULT_URL = "https://sgammtgdylghpufkidfi.supabase.co";
-const SUPABASE_DEFAULT_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnYW1tdGdkeWxnaHB1ZmtpZGZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3111111111...";
+const SUPABASE_DEFAULT_KEY = "sb_publishable_YRz40KFT9DTNqBQooNRGPw_kpU2PhYi";
 
 let supabaseUrl = localStorage.getItem('pontovigia_sb_url') || SUPABASE_DEFAULT_URL;
 let supabaseKey = localStorage.getItem('pontovigia_sb_key') || SUPABASE_DEFAULT_KEY;
@@ -243,6 +243,7 @@ function exportarParaCsv() {
     link.click();
     document.body.removeChild(link);
 }
+
 let plantaoAtivoTimer = null;
 
 function realizarCheckIn() {

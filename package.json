@@ -1,0 +1,9 @@
+{
+  "name": "sistema-ponto",
+  "version": "3.0.0",
+  "description": "Sistema Ponto Vigias",
+  "scripts": {
+    "start": "echo 'Frontend estático pronto'"
+  },
+  "private": true
+}

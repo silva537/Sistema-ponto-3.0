@@ -1,14 +1,11 @@
 // ==========================================
 // PONTOVIGIA • MÓDULO DE EXPANSÃO INTERNA DO ADM (v3.0)
-// Injeta as ferramentas apenas após o login com senha
 // ==========================================
 
 setInterval(() => {
     const conteudoProtegido = document.getElementById('conteudoProtegidoAdm');
     
-    // Verifica se o painel protegido está visível na tela e se o bloco ainda não foi inserido
     if (conteudoProtegido && conteudoProtegido.style.display !== 'none' && !document.getElementById('extrasAdmProtegidos')) {
-        
         const blocoExtras = document.createElement('div');
         blocoExtras.id = 'extrasAdmProtegidos';
         blocoExtras.innerHTML = `
@@ -18,12 +15,10 @@ setInterval(() => {
             <button class="btn-dev-action" onclick="executarAuditoriaSistema()" style="margin-top: 4px;">🔍 Auditoria de Dados Locais</button>
         `;
 
-        // Insere as ferramentas antes dos botões de logout/resetar do final
         conteudoProtegido.insertBefore(blocoExtras, conteudoProtegido.lastElementChild.previousElementSibling);
     }
 }, 1000);
 
-// Funções dos novos botões do ADM
 function executarSimulacaoAnual() {
     const dados = JSON.parse(localStorage.getItem('pontovigia_plantoes')) || [];
     let totalAtual = 0;

@@ -11,7 +11,6 @@ async function verificarAtualizacoesDisponiveis() {
         if (!resposta.ok) return;
 
         const dados = await resposta.json();
-        
         if (dados.versao && dados.versao !== VERSAO_ATUAL) {
             exibirModalAtualizacao(dados.versao, dados.mensagem);
         } else {
@@ -36,14 +35,8 @@ function exibirModalAtualizacao(novaVersao, mensagem) {
 
     if (txtVersaoAtual) txtVersaoAtual.textContent = VERSAO_ATUAL;
     if (txtVersaoNova) txtVersaoNova.textContent = novaVersao;
-    
-    if (listaNovidades) {
-        listaNovidades.innerHTML = `<li>${mensagem || 'Correções de bugs e otimizações gerais.'}</li>`;
-    }
-
-    if (updateModal) {
-        updateModal.style.display = 'flex';
-    }
+    if (listaNovidades) listaNovidades.innerHTML = `<li>${mensagem || 'Correções de bugs e otimizações gerais.'}</li>`;
+    if (updateModal) updateModal.style.display = 'flex';
 }
 
 function fecharModalAtualizacao() {
@@ -54,9 +47,7 @@ function fecharModalAtualizacao() {
 function executarAtualizacao() {
     if ('caches' in window) {
         caches.keys().then((names) => {
-            names.forEach((name) => {
-                caches.delete(name);
-            });
+            names.forEach((name) => { caches.delete(name); });
         });
     }
     alert('Baixando nova versão...');

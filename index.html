@@ -6,6 +6,8 @@
     <title>Nexus Plantões • Sistema Ponto Vigias</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    <!-- SDK do Supabase para Sincronização em Nuvem -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div id="devSidebar" class="dev-sidebar">
@@ -26,7 +28,7 @@
         <div id="conteudoProtegidoAdm" class="dev-body-content" style="display: none;">
             <div class="dev-info-block">
                 <span class="dev-label">Versão do Sistema Local</span>
-                <strong style="color: var(--accent);">v3.0</strong>
+                <strong style="color: var(--accent);">v3.2 Cloud</strong>
             </div>
             <div class="dev-info-block">
                 <span class="dev-label">Status de Conexão</span>
@@ -35,10 +37,21 @@
 
             <hr class="dev-divider">
 
-            <span class="dev-label" style="margin-bottom: 2px; display:block;">Controle de Operação</span>
-            <button class="btn-dev-action" onclick="alternarModoManutencao()">🛠️ Ativar / Desativar Manutenção</button>
-            <button class="btn-dev-action" onclick="forcarChecagemAtualizacao()">🔄 Forçar Checagem de Update</button>
-            <button class="btn-dev-action" onclick="dispararTesteAtualizacao()">📢 Testar Notificação de Update</button>
+            <span class="dev-label" style="margin-bottom: 2px; display:block;">Configuração do Supabase (Mural Nuvem)</span>
+            <div class="form-group" style="gap: 2px;">
+                <input type="text" id="inputSupabaseUrl" class="form-control" placeholder="URL do Projeto Supabase..." style="font-size: 11px; padding: 6px;">
+                <input type="password" id="inputSupabaseKey" class="form-control" placeholder="Chave Anon Public..." style="font-size: 11px; padding: 6px; margin-top: 4px;">
+            </div>
+            <button class="btn-dev-action" onclick="salvarCredenciaisSupabase()" style="background: var(--accent); color: #fff; text-align: center; font-weight: 700; margin-top: 4px;">💾 Salvar Credenciais Nuvem</button>
+
+            <hr class="dev-divider">
+
+            <span class="dev-label" style="margin-bottom: 2px; display:block;">Configuração de Webhook (Discord / Telegram)</span>
+            <div class="form-group" style="gap: 2px;">
+                <input type="text" id="inputWebhookUrl" class="form-control" placeholder="Cole a URL do Webhook aqui..." style="font-size: 11px; padding: 6px;">
+            </div>
+            <button class="btn-dev-action" onclick="salvarWebhookUrl()" style="background: var(--accent); color: #fff; text-align: center; font-weight: 700; margin-top: 4px;">💾 Salvar Webhook</button>
+            <button class="btn-dev-action" onclick="testarEnvioWebhook()" style="margin-top: 4px;">🚀 Testar Disparo de Alerta</button>
 
             <hr class="dev-divider">
 
@@ -68,13 +81,37 @@
         <header class="app-header" id="appHeaderCustom">
             <div class="brand-area">
                 <span class="menu-icon" onclick="tentarAbrirMenuDev()">☰</span>
-                <span class="brand-title">PONTOVIGIA • RH ID</span>
+                <span class="brand-title"> VALIS • PLANTÕES PRO</span>
             </div>
-            <div class="badge-pro">Pro 3.0</div>
+            <div class="badge-pro">v3.2 Cloud</div>
         </header>
 
-        <!-- BLOCO 1: NOVO REGISTRO -->
+        <div id="bannerAnuncioGlobal" class="anuncio-banner-global" style="display: none;">
+            <div class="anuncio-conteudo">
+                <span id="txtTituloAnuncio" class="anuncio-titulo">📢 Aviso</span>
+                <p id="txtMensagemAnuncio" class="anuncio-texto"></p>
+            </div>
+            <button class="btn-fechar-anuncio" onclick="fecharAnuncioAtual()">✕</button>
+        </div>
         <main class="main-container">
+            <!-- MÓDULO DE PLANTÃO ATIVO (CHECK-IN / CHECK-OUT / REFEIÇÕES) -->
+            <section class="card-panel" style="border-color: var(--accent-glow);">
+                <div class="panel-header-row">
+                    <h3>⚡ MODO PLANTÃO ATIVO</h3>
+                    <span id="statusPlantaoAtivoTag" class="auto-save-tag" style="background: rgba(59,130,246,0.1); color: #60a5fa; border-color: rgba(59,130,246,0.2);">🔴 INATIVO</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <span id="txtCronometroPlantao" style="font-size: 13px; color: var(--text-muted);">Nenhum plantão em andamento.</span>
+                </div>
+                <div class="form-grid-2">
+                    <button class="btn-primary-action" id="btnCheckIn" onclick="realizarCheckIn()" style="background: #059669; margin: 0;">🟢 Check-in (Entrada)</button>
+                    <button class="btn-primary-action" id="btnCheckOut" onclick="realizarCheckOut()" style="background: #ef4444; margin: 0;" disabled>🔴 Check-out (Saída)</button>
+                </div>
+                <div class="form-grid-2" style="margin-top: 8px;">
+                    <button class="btn-primary-action" id="btnPausaRefeicao" onclick="registrarPausaRefeicao()" style="background: #d97706; margin: 0; grid-column: span 2;" disabled>🍽️ Registrar Almoço / Janta (Início/Fim)</button>
+                </div>
+            </section>
+
             <section class="card-panel">
                 <div class="panel-header-row">
                     <h3>NOVO REGISTRO</h3>
@@ -113,14 +150,25 @@
                         <input type="number" id="inputSono" class="form-control" value="0" step="0.5">
                     </div>
                     <div class="form-group">
-                        <label>Valor (R$)</label>
+                        <label>Valor Base (R$)</label>
                         <input type="number" id="inputValor" class="form-control" value="100.00">
                     </div>
                 </div>
 
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label>Horas Extras</label>
+                        <input type="number" id="inputHorasExtras" class="form-control" value="0" step="0.5" placeholder="Qtd HE">
+                    </div>
+                    <div class="form-group">
+                        <label>Adicional Noturno (%)</label>
+                        <input type="number" id="inputAdicionalNoturno" class="form-control" value="20" placeholder="% Adicional">
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label>Cobriu folga de (Opcional)</label>
-                    <input type="text" id="inputCobertura" class="form-control" placeholder="Nome do colega">
+                    <label>Cobriu folga de (Opcional - Carona Solidária)</label>
+                    <input type="text" id="inputCobertura" class="form-control" placeholder="Nome do colega / Anunciar troca">
                 </div>
 
                 <div class="form-group">
@@ -131,10 +179,16 @@
                 <button class="btn-primary-action" id="btnSalvarPlantao">Salvar Plantão</button>
             </section>
 
-            <!-- BLOCO 2: VISÃO GERAL E MÉTRICAS -->
             <section class="card-panel">
                 <div class="panel-header-row">
-                    <h3>VISÃO GERAL</h3>
+                    <h3>VISÃO GERAL & SAÚDE</h3>
+                </div>
+
+                <div id="alertaFadigaBox" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 8px; padding: 10px; margin-bottom: 12px; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="font-size: 12px; font-weight: 700; color: #f87171; display: block;">⚠️ Alerta de Fadiga Detectado</span>
+                        <span id="txtMensagemFadiga" style="font-size: 11px; color: var(--text-muted);">Muitos plantões seguidos com pouco sono. Considere folga!</span>
+                    </div>
                 </div>
 
                 <div class="meta-box">
@@ -152,22 +206,16 @@
 
                 <div class="preview-cards-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <div class="preview-card-item" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;">
-                        <div class="preview-header-row" style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="preview-title" style="font-size: 10px; color: var(--text-muted);">Previsão Cash</span>
-                            <button class="preview-badge-btn" onclick="configurarPrevisaoCash()" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); font-size: 9px; padding: 2px 6px; border-radius: 6px; cursor: pointer;">📅 Dia</button>
-                        </div>
+                        <span class="preview-title" style="font-size: 10px; color: var(--text-muted);">Previsão Cash</span>
                         <span id="txtPrevisaoCash" style="font-size: 13px; font-weight: 700; color: #f59e0b;">Falta 1 dia</span>
                     </div>
                     <div class="preview-card-item" style="background: var(--bg-base); border: 1px solid var(--danger); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;">
-                        <div class="preview-header-row" style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="preview-title" style="font-size: 10px; color: var(--text-muted);">Fechamento RH</span>
-                            <button class="preview-badge-btn" onclick="configurarLimiteRh()" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); font-size: 9px; padding: 2px 6px; border-radius: 6px; cursor: pointer;">⚙️ Limite</button>
-                        </div>
+                        <span class="preview-title" style="font-size: 10px; color: var(--text-muted);">Fechamento RH</span>
                         <span id="txtFechamentoRh" style="font-size: 13px; font-weight: 700; color: var(--danger);">Falta 1 dia!</span>
                     </div>
                 </div>
 
-                <div class="metrics-grid-2">
+                <div class="metrics-grid-2" style="margin-top: 10px;">
                     <div class="metric-card">
                         <span class="metric-label">Total Plantões</span>
                         <strong id="totalPlantoesQtd" class="metric-val-white">0</strong>
@@ -191,7 +239,17 @@
                 <button class="btn-success-action" id="btnFecharFolha">✔ Recebi / Fechar Folha Atual</button>
             </section>
 
-            <!-- BLOCO 3: EXTRATOS, FERRAMENTAS E FOLHAS ARQUIVADAS -->
+            <!-- MURAL DE TROCA & CARONA SOLIDÁRIA (NUVEM) -->
+            <section class="card-panel">
+                <div class="panel-header-row">
+                    <h3>🤝 MURAL DE TROCA GLOBAL (NUVEM)</h3>
+                    <button id="btnAbrirModalTroca" onclick="abrirModalAnunciarTroca()" style="background: var(--accent); color: #fff; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;">+ Anunciar Troca</button>
+                </div>
+                <div id="muralTrocasContainer">
+                    <p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 10px;">Conectando à nuvem...</p>
+                </div>
+            </section>
+
             <section class="card-panel">
                 <div class="panel-header-row">
                     <h3>EXTRATOS E ARQUIVOS</h3>
@@ -203,7 +261,7 @@
                             <tr>
                                 <th>Detalhes</th>
                                 <th>Turno / Horário</th>
-                                <th>Valor</th>
+                                <th>Valor Total</th>
                                 <th>Ação</th>
                             </tr>
                         </thead>
@@ -216,9 +274,30 @@
                     <strong id="totalFiltradoValor">R$ 0.00</strong>
                 </div>
 
+                <!-- SEÇÃO DE LOGS DO PONTO / CHECK-IN -->
+                <div class="panel-header-row" style="margin-top: 12px;">
+                    <h3>📋 LOGS DE CHECK-IN / INTERVALOS</h3>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Entrada</th>
+                                <th>Refeição</th>
+                                <th>Saída</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaLogsBody">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum log de ponto registrado.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div class="tools-box">
                     <span class="tools-title">Ferramentas</span>
-                    <button class="btn-secondary-action" id="btnExportarCsv">📊 Exportar Dados para Excel (CSV)</button>
+                    <button class="btn-secondary-action" id="btnExportarCsv">📊 Exportar Dados para Excel (CSV Discriminado)</button>
                 </div>
 
                 <hr class="dev-divider" style="margin: 8px 0;">
@@ -233,8 +312,24 @@
         </main>
 
         <footer class="app-footer">
-            Desenvolvido por Vitor
+            Nexus Plantões • Desenvolvido por Vitor
         </footer>
+    </div>
+
+    <!-- Modal de Anúncio de Troca / Carona -->
+    <div id="modalTrocaPlantao" class="update-modal-overlay">
+        <div class="update-modal-card">
+            <div class="update-header">🤝 Anunciar Troca na Nuvem</div>
+            <div class="update-body">
+                <div class="form-group"><label>Data do Plantão</label><input type="date" id="inputTrocaData" class="form-control"></div>
+                <div class="form-group"><label>Seu Nome</label><input type="text" id="inputTrocaNome" class="form-control" placeholder="Ex: Vitor"></div>
+                <div class="form-group"><label>Motivo / Detalhes</label><input type="text" id="inputTrocaMotivo" class="form-control" placeholder="Ex: Compromisso familiar / Cansaço"></div>
+            </div>
+            <div class="update-footer">
+                <button class="btn-update-now" onclick="publicarAnuncioTrocaCloud()">Publicar na Nuvem</button>
+                <button class="btn-update-later" onclick="fecharModalTroca()">Cancelar</button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Atualização Obrigatório -->

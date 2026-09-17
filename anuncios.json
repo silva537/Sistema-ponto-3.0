@@ -1,0 +1,8 @@
+{
+  "ativo": true,
+  "id": "aviso_atualizacao_3.1",
+  "titulo": "📢 Nova Atualização Disponível!",
+  "mensagem": "O PontoVigia foi atualizado com melhorias na exportação e alertas via webhook. Confira as novidades!",
+  "tipo": "info", 
+  "link": ""
+}

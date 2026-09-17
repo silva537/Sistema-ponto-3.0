@@ -4,8 +4,8 @@ let logsPlantao = JSON.parse(localStorage.getItem('pontovigia_logs')) || [];
 let metaMensal = parseFloat(localStorage.getItem('pontovigia_meta')) || 1000.00;
 
 // Configuração do Supabase (Carregada do LocalStorage ou vazia para configurar no ADM)
-let supabaseUrl = localStorage.getItem('pontovigia_sb_url') || '';
-let supabaseKey = localStorage.getItem('pontovigia_sb_key') || '';
+let supabaseUrl = localStorage.getItem('https://sgammtgdylghpufkidfi.supabase.co') || '';
+let supabaseKey = localStorage.getItem('sb_publishable_YRz40KFT9DTNqBQooNRGPw_kpU2PhYi') || '';
 let supabaseClient = null;
 
 if (supabaseUrl && supabaseKey && window.supabase) {

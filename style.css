@@ -515,3 +515,71 @@ body {
 .anuncio-titulo { font-weight: 700; font-size: 13px; color: var(--accent); display: block; margin-bottom: 2px; }
 .anuncio-texto { font-size: 12px; color: var(--text-muted); margin: 0; }
 .btn-fechar-anuncio { background: transparent; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 4px; }
+
+/* Papel de parede temático da Bandeira do Brasil estilizada */
+body.fundo-brasil-patria {
+    background-color: #0b1c10;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(0, 156, 59, 0.25) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(254, 221, 0, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(0, 39, 118, 0.3) 0%, transparent 60%);
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+/* Efeito de Luzes Neon Tricolor Contido (Sem vazar no rodapé) */
+.neon-border-brasil {
+    position: relative;
+    border-radius: 12px;
+    /* Isolamos o contexto para o blur não vazar para fora do app-shell */
+    isolation: isolate; 
+}
+
+.neon-border-brasil::before {
+    content: '';
+    position: absolute;
+    /* Limitamos a altura para que pare antes do rodapé e dos textos inferiores */
+    top: -2px; 
+    left: -2px; 
+    right: -2px; 
+    bottom: 50px; 
+    background: linear-gradient(45deg, #009c3b, #feed00, #002776, #009c3b);
+    background-size: 400%;
+    border-radius: 14px;
+    z-index: -1;
+    animation: animarLuzesNeon 8s linear infinite;
+    filter: blur(4px);
+    opacity: 0.75;
+    pointer-events: none;
+}
+
+@keyframes animarLuzesNeon {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+/* Papel de parede temático da Bandeira do Brasil estilizada */
+body.fundo-brasil-patria {
+    background-color: #0b1c10;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(0, 156, 59, 0.25) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(254, 221, 0, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 50% 20%, rgba(0, 39, 118, 0.3) 0%, transparent 60%);
+    background-attachment: scroll; /* Mudado de fixed para scroll para não esticar na tela toda */
+    background-size: 100% 1000px; /* Limita a altura que o gradiente ocupa */
+    background-repeat: no-repeat;
+}
+
+/* Garante que o rodapé tenha um fundo escuro sólido para isolar o texto perfeitamente */
+.app-footer {
+    text-align: center;
+    padding: 15px 10px 25px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    background: #090d16; /* Fundo escuro igual à base para apagar qualquer brilho por trás */
+    border-radius: 8px;
+    margin-top: 10px;
+}

@@ -9,7 +9,7 @@
     <!-- SDK do Supabase para Sincronização em Nuvem -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
+<body class="fundo-brasil-patria">
     <div id="devSidebar" class="dev-sidebar">
         <div class="dev-header">
             <h3>Painel ADM / Desenvolvedor</h3>
@@ -55,15 +55,6 @@
 
             <hr class="dev-divider">
 
-            <span class="dev-label" style="margin-bottom: 2px; display:block;">Customização Visual (RGB / Fundo)</span>
-            <div class="form-group" style="gap: 2px;">
-                <input type="text" id="inputUrlFundoDev" class="form-control" placeholder="Cole o link da Imagem ou GIF..." style="font-size: 11px; padding: 6px;">
-            </div>
-            <button class="btn-dev-action" onclick="salvarFundoPersonalizado()" style="background: var(--accent); color: #fff; text-align: center; font-weight: 700; margin-top: 4px;">🎨 Aplicar Fundo no Cabeçalho</button>
-            <button class="btn-dev-action" onclick="removerFundoPersonalizado()" style="margin-top: 4px;">🗑️ Remover Fundo / Resetar</button>
-
-            <hr class="dev-divider">
-
             <span class="dev-label" style="margin-bottom: 2px; display:block;">Gestão de Dados & JSON</span>
             <button class="btn-dev-action" onclick="exportarBackupJSON()">📥 Exportar Backup JSON</button>
             <button class="btn-dev-action" onclick="importarBackupJSON()">📤 Restaurar JSON</button>
@@ -75,15 +66,22 @@
             <button class="btn-dev-danger" onclick="limparBancoDadosLocal()">⚠️ Resetar Dados Locais</button>
         </div>
     </div>
-    
     <div id="devOverlay" class="dev-overlay" onclick="fecharMenuDev()"></div>
-    <div class="app-shell">
-        <header class="app-header" id="appHeaderCustom">
-            <div class="brand-area">
+    <div class="app-shell neon-border-brasil">
+        <        <header class="app-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="brand-area" style="display: flex; align-items: center; gap: 8px;">
                 <span class="menu-icon" onclick="tentarAbrirMenuDev()">☰</span>
-                <span class="brand-title"> VALIS • PLANTÕES PRO</span>
+                <span class="brand-title">🇧🇷 VALIS • PLANTÕES PRO</span>
             </div>
-            <div class="badge-pro">v3.2 Cloud</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <!-- Ícone de Sino de Notificações / Atualizações -->
+                <div onclick="abrirModalCentralNotificacoes()" style="position: relative; cursor: pointer; padding: 6px; background: rgba(255,255,255,0.05); border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;" title="Central de Notificações e Atualizações">
+                    <span style="font-size: 16px;">🔔</span>
+                    <!-- Bolinha de Alerta (fica oculta se não houver atualização pendente) -->
+                    <span id="badgeNotificacao" style="position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; display: none; border: 2px solid #090d16;"></span>
+                </div>
+                <div class="badge-pro">v3.2 Cloud</div>
+            </div>
         </header>
 
         <div id="bannerAnuncioGlobal" class="anuncio-banner-global" style="display: none;">
@@ -111,7 +109,6 @@
                     <button class="btn-primary-action" id="btnPausaRefeicao" onclick="registrarPausaRefeicao()" style="background: #d97706; margin: 0; grid-column: span 2;" disabled>🍽️ Registrar Almoço / Janta (Início/Fim)</button>
                 </div>
             </section>
-
             <section class="card-panel">
                 <div class="panel-header-row">
                     <h3>NOVO REGISTRO</h3>
@@ -204,14 +201,16 @@
                     </div>
                 </div>
 
-                <div class="preview-cards-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="preview-cards-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
                     <div class="preview-card-item" style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;">
                         <span class="preview-title" style="font-size: 10px; color: var(--text-muted);">Previsão Cash</span>
                         <span id="txtPrevisaoCash" style="font-size: 13px; font-weight: 700; color: #f59e0b;">Falta 1 dia</span>
+                        <button class="btn-text-link" onclick="ajustarDataPrevisao()" style="font-size: 10px; text-align: left; padding: 0; color: var(--accent); margin-top: 2px;">✏️ Editar Data</button>
                     </div>
                     <div class="preview-card-item" style="background: var(--bg-base); border: 1px solid var(--danger); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px;">
                         <span class="preview-title" style="font-size: 10px; color: var(--text-muted);">Fechamento RH</span>
                         <span id="txtFechamentoRh" style="font-size: 13px; font-weight: 700; color: var(--danger);">Falta 1 dia!</span>
+                        <button class="btn-text-link" onclick="ajustarDataFechamentoRh()" style="font-size: 10px; text-align: left; padding: 0; color: var(--accent); margin-top: 2px;">✏️ Editar Data</button>
                     </div>
                 </div>
 
@@ -236,9 +235,8 @@
                     </div>
                 </div>
 
-                <button class="btn-success-action" id="btnFecharFolha">✔ Recebi / Fechar Folha Atual</button>
+                <button class="btn-success-action" id="btnFecharFolha" style="display: block; width: 100%; margin-top: 10px;">✔ Recebi / Fechar Folha Atual</button>
             </section>
-
             <!-- MURAL DE TROCA & CARONA SOLIDÁRIA (NUVEM) -->
             <section class="card-panel">
                 <div class="panel-header-row">
@@ -310,10 +308,41 @@
                 </div>
             </section>
         </main>
-
-        <footer class="app-footer">
-            Nexus Plantões • Desenvolvido por Vitor
+        <!-- Rodapé Limpo com Link para o Modal -->
+        <footer class="app-footer" style="text-align: center; padding: 15px 10px 25px 10px; display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center; background: #090d16; border-radius: 8px; margin-top: 10px;">
+            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                Nexus Plantões • Sistema Ponto Vigias
+            </div>
+            <button class="btn-text-link" onclick="abrirModalTermos()" style="font-size: 11px; color: var(--accent); margin: 2px 0; background: none; border: none; cursor: pointer; text-decoration: underline;">
+                📜 Termos de Uso & Diretrizes Tecnológicas
+            </button>
+            <div style="font-size: 11px; font-weight: 700; color: var(--accent);">
+                Desenvolvido por Vítor Silva 🇧🇷
+            </div>
         </footer>
+    </div>
+    
+    <!-- Modal de Termos de Uso e Diretrizes -->
+    <div id="modalTermosUso" class="update-modal-overlay">
+        <div class="update-modal-card" style="max-height: 80vh; display: flex; flex-direction: column;">
+            <div class="update-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>📜 Diretrizes & Termos de Uso</span>
+                <button onclick="fecharModalTermos()" style="background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer;">✕</button>
+            </div>
+            <div class="update-body" style="overflow-y: auto; max-height: 50vh; padding-right: 4px; text-align: left;">
+                <h4 style="color: var(--text-main); margin-bottom: 4px; font-size: 12px;">1. Diretrizes Tecnológicas & Normas</h4>
+                <p style="margin-bottom: 8px; font-size: 11px; color: var(--text-muted);">Este sistema opera sob padrões de armazenamento seguro local e nuvem (Supabase), seguindo diretrizes rígidas de integridade de dados para jornadas de trabalho e revezamento de plantões.</p>
+                
+                <h4 style="color: var(--text-main); margin-bottom: 4px; font-size: 12px;">2. Conformidade Trabalhista</h4>
+                <p style="margin-bottom: 8px; font-size: 11px; color: var(--text-muted);">O registro de ponto, horas extras e adicional noturno serve como ferramenta de auxílio e controle pessoal, em alinhamento com as normas internas de revezamento e escalas.</p>
+                
+                <h4 style="color: var(--text-main); margin-bottom: 4px; font-size: 12px;">3. Privacidade e Backups</h4>
+                <p style="font-size: 11px; color: var(--text-muted);">Os dados salvos pertencem inteiramente ao usuário. Recomenda-se exportar backups em JSON periodicamente através do painel de desenvolvedor para garantir a segurança das informações.</p>
+            </div>
+            <div class="update-footer">
+                <button class="btn-update-now" onclick="fecharModalTermos()">Entendido</button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Anúncio de Troca / Carona -->
@@ -347,9 +376,32 @@
             </div>
         </div>
     </div>
+
     <!-- Scripts -->
     <script src="standby.js"></script>
     <script src="updater.js"></script>
     <script src="script.js"></script>
+      <!-- Modal da Central de Notificações e Atualizações -->
+    <div id="modalCentralNotificacoes" class="update-modal-overlay">
+        <div class="update-modal-card" style="max-height: 85vh; display: flex; flex-direction: column;">
+            <div class="update-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>🔔 Central de Atualizações</span>
+                <button onclick="fecharModalCentralNotificacoes()" style="background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer;">✕</button>
+            </div>
+            <div class="update-body" style="overflow-y: auto; max-height: 55vh; padding-right: 4px; text-align: left;">
+                <div id="conteudoStatusAtualizacao">
+                    <div style="background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                        <span style="font-size: 12px; font-weight: 700; color: var(--accent); display: block; margin-bottom: 4px;">📦 Versão Disponível na Nuvem</span>
+                        <p id="txtVersaoDetalhesNuvem" style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Verificando atualizações disponíveis...</p>
+                        <span id="txtChangelogNuvem" style="font-size: 11px; color: var(--text-main); display: block;"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="update-footer" style="display: flex; gap: 8px; flex-direction: column;">
+                <a id="btnBaixarInstalador" href="#" target="_blank" class="btn-update-now" style="text-align: center; text-decoration: none; display: none; background: #059669;">⬇️ Baixar e Instalar Nova Versão</a>
+                <button class="btn-update-later" onclick="fecharModalCentralNotificacoes()">Fechar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
